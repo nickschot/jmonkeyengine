@@ -38,6 +38,8 @@ import com.jme3.export.OutputCapsule;
 import com.jme3.input.controls.*;
 import com.jme3.math.FastMath;
 import com.jme3.math.Vector3f;
+import com.jme3.math.interpolations.api.Interpolation;
+import com.jme3.math.interpolations.impl.LinearFloatInterpolation;
 import com.jme3.renderer.Camera;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
@@ -99,7 +101,10 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control {
     protected Vector3f temp = new Vector3f(0, 0, 0);
     protected boolean invertYaxis = false;
     protected boolean invertXaxis = false;
-    
+
+    private Interpolation<Float> distanceInterpolation = new LinearFloatInterpolation(this.distance, this.targetDistance);
+    private Interpolation<Float> rotationInterpolation = new LinearFloatInterpolation(this.rotation, this.targetRotation);
+    private Interpolation<Float> vRotationInterpolation = new LinearFloatInterpolation(this.vRotation, this.targetVRotation);
     /**
      * @deprecated use {@link CameraInput#CHASECAM_DOWN}
      */
@@ -966,5 +971,18 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control {
             inputManager.addMapping(CameraInput.CHASECAM_MOVERIGHT, new MouseAxisTrigger(MouseInput.AXIS_X, true));
         }
         inputManager.addListener(this, CameraInput.CHASECAM_MOVELEFT, CameraInput.CHASECAM_MOVERIGHT);
+    }
+
+    // Helper functions used due to the Interpolation refactor
+    private void updateRotationInterpolation() {
+        rotationInterpolation = new LinearFloatInterpolation(this.rotation, this.targetRotation);
+    }
+
+    private void updateDistanceInterpolation() {
+        distanceInterpolation = new LinearFloatInterpolation(this.distance, this.targetDistance);
+    }
+
+    private void updateVRotationInterpolation() {
+        vRotationInterpolation = new LinearFloatInterpolation(this.vRotation, this.targetVRotation);
     }
 }
