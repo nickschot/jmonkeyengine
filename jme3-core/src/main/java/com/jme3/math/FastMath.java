@@ -31,6 +31,10 @@
  */
 package com.jme3.math;
 
+import com.jme3.math.interpolations.impl.BezierFloatInterpolation;
+import com.jme3.math.interpolations.impl.CatmullRomFloatInterpolation;
+import com.jme3.math.interpolations.impl.LinearFloatInterpolation;
+
 import java.util.Random;
 
 /**
@@ -121,16 +125,7 @@ final public class FastMath {
      * @return The interpolated value between startValue and endValue.
      */
     public static float interpolateLinear(float scale, float startValue, float endValue) {
-        if (startValue == endValue) {
-            return startValue;
-        }
-        if (scale <= 0f) {
-            return startValue;
-        }
-        if (scale >= 1f) {
-            return endValue;
-        }
-        return ((1f - scale) * startValue) + (scale * endValue);
+        return new LinearFloatInterpolation(startValue, endValue).interpolate(scale);
     }
 
     /**
@@ -244,13 +239,7 @@ final public class FastMath {
      * @return Catmull–Rom interpolation
      */
     public static float interpolateCatmullRom(float u, float T, float p0, float p1, float p2, float p3) {
-        float c1, c2, c3, c4;
-        c1 = p1;
-        c2 = -1.0f * T * p0 + T * p2;
-        c3 = 2 * T * p0 + (T - 3) * p1 + (3 - 2 * T) * p2 + -T * p3;
-        c4 = -T * p0 + (2 - T) * p1 + (T - 2) * p2 + T * p3;
-
-        return (float) (((c4 * u + c3) * u + c2) * u + c1);
+        return new CatmullRomFloatInterpolation(T, p0, p1, p2, p3).interpolate(u);
     }
 
     /**Interpolate a spline between at least 4 control points following the Catmull-Rom equation.
@@ -317,13 +306,7 @@ final public class FastMath {
      * @return Bezier interpolation
      */
     public static float interpolateBezier(float u, float p0, float p1, float p2, float p3) {
-        float oneMinusU = 1.0f - u;
-        float oneMinusU2 = oneMinusU * oneMinusU;
-        float u2 = u * u;
-        return p0 * oneMinusU2 * oneMinusU
-                + 3.0f * p1 * u * oneMinusU2
-                + 3.0f * p2 * u2 * oneMinusU
-                + p3 * u2 * u;
+        return new BezierFloatInterpolation(p0, p1, p2, p3).interpolate(u);
     }
 
     /**Interpolate a spline between at least 4 control points following the Bezier equation.

@@ -31,7 +31,11 @@
  */
 package com.jme3.math;
 
+import org.hamcrest.CoreMatchers;
 import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+
 
 /**
  * Verifies that algorithms in {@link FastMath} are working correctly.
@@ -56,4 +60,54 @@ public class FastMathTest {
             assert nextPowerOf2 == nearestPowerOfTwoSlow(i);
         }
     }
+
+    @Test
+    public void testLinearInterpolate() {
+        // Some good weather situations
+        assertEquals(60.0f, FastMath.interpolateLinear(0.1f, 50.0f, 150.0f),  0.001f);
+        assertEquals(100.0f, FastMath.interpolateLinear(0.5f, 50.0f, 150.0f),  0.001f);
+        assertEquals(70.0f, FastMath.interpolateLinear(0.2f, 50.0f, 150.0f),  0.001f);
+
+        // Some bad weather situations
+        // On the border of the range
+        assertEquals(50.0f, FastMath.interpolateLinear(0.0f, 50.0f, 150.0f),  0.001f);
+        // Other border
+        assertEquals(150.0f, FastMath.interpolateLinear(1.0f, 50.0f, 150.0f),  0.001f);
+        // Way below the lower bound
+        assertEquals(50.0f, FastMath.interpolateLinear(-100.0f, 50.0f, 150.0f),  0.001f);
+        // Way above the higher bound
+        assertEquals(150.0f, FastMath.interpolateLinear(200.0f, 50.0f, 150.0f), 0.001f);
+    }
+
+    @Test
+    public void interpolateCatmullRom() {
+        float[] expected = new float[]{5.147461f, 5.3921876f, 5.7001953f, 6.0375f, 6.370117f, 6.6640625f, 6.8853517f};
+
+        for (int i = 0; i < 7; i++) {
+            float value = ((float) i + 1) / 8;
+
+            assertEquals(expected[i], FastMath.interpolateCatmullRom(value, 0.1f, 0f, 5f, 7f, 9f), 0.001f);
+        }
+
+        assertEquals(5.0f, FastMath.interpolateCatmullRom(0.0f, 0.1f, 0f, 5f, 7f, 9f), 0.001f);
+        assertEquals(7.0f, FastMath.interpolateCatmullRom(1.0f, 0.1f, 0f, 5f, 7f, 9f), 0.001f);
+    }
+
+    @Test
+    public void interpolateBezier() {
+        float[] expected = new float[]{1.7402344f, 3.234375f, 4.517578f, 5.625f, 6.591797f, 7.453125f, 8.244141f};
+
+        for (int i = 0; i < 7; i++) {
+            float value = ((float) i + 1) / 8;
+
+            assertEquals(expected[i], FastMath.interpolateBezier(value, 0f, 5f, 7f, 9f), 0.001f);
+        }
+
+        assertEquals(0.0f, FastMath.interpolateBezier(0.0f, 0f, 5f, 7f, 9f), 0.001f);
+        assertEquals(9.0f, FastMath.interpolateBezier(1.0f, 0f, 5f, 7f, 9f), 0.001f);
+    }
+
+
+
+
 }
