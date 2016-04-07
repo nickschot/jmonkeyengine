@@ -1,14 +1,21 @@
 package com.jme3.math.interpolations.impl;
 
 import com.jme3.math.VectorNf;
-import com.jme3.math.interpolations.api.VectorInterpolation;
+import com.jme3.math.interpolations.api.NonPrimitiveInterpolation;
 
 /**
  * Created by lennart on 07/04/16.
  */
-public class CatmullRomVectorInterpolation<V extends VectorNf>  implements VectorInterpolation<V> {
+public class CatmullRomVectorInterpolation<V extends VectorNf>  implements NonPrimitiveInterpolation<V> {
     private final CatmullRomFloatInterpolation[] inters;
+
+    private final V lowerBound;
+    private final V upperBound;
+
     public CatmullRomVectorInterpolation(float T, V p0, V p1, V p2, V p3) {
+
+        this.lowerBound = p1;
+        this.upperBound = p2;
 
         inters = new CatmullRomFloatInterpolation[p0.size()];
 
@@ -19,11 +26,9 @@ public class CatmullRomVectorInterpolation<V extends VectorNf>  implements Vecto
     }
 
     @Override
-    public V interpolate(float value, V resVector) {
+    public void interpolate(float value, V resVector) {
         for (int i = 0; i < resVector.size(); i++) {
             resVector.set(i, inters[i].interpolate(value));
         }
-
-        return resVector;
     }
 }

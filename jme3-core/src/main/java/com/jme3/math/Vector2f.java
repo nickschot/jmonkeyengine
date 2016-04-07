@@ -412,7 +412,7 @@ public final class Vector2f implements VectorNf, Savable, Cloneable, java.io.Ser
      * 
      * @param scalar
      *            the value to divide this vectors attributes by.
-     * @return the result <code>VectorNf</code>.
+     * @return the result <code>Vector2f</code>.
      */
     public Vector2f divide(float scalar) {
         return new Vector2f(x / scalar, y / scalar);

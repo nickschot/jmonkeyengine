@@ -16,13 +16,13 @@ public class BezierFloatInterpolation implements Interpolation<Float> {
     }
 
     @Override
-    public Float interpolate(float value) {
-        float oneMinusValue = 1.0f - value;
+    public Float interpolate(float step) {
+        float oneMinusValue = 1.0f - step;
         float oneMinusValue2 = oneMinusValue * oneMinusValue;
-        float value2 = value * value;
+        float value2 = step * step;
         return p0 * oneMinusValue2 * oneMinusValue
-                + 3.0f * p1 * value * oneMinusValue2
+                + 3.0f * p1 * step * oneMinusValue2
                 + 3.0f * p2 * value2 * oneMinusValue
-                + p3 * value2 * value;
+                + p3 * value2 * step;
     }
 }

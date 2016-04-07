@@ -594,7 +594,7 @@ public final class Vector3f implements VectorNf, Savable, Cloneable, java.io.Ser
      *
      * @param scalar
      *            the value to divide this vectors attributes by.
-     * @return the result <code>VectorNf</code>.
+     * @return the result <code>Vector3f</code>.
      */
     public Vector3f divide(float scalar) {
         scalar = 1f/scalar;
@@ -625,7 +625,7 @@ public final class Vector3f implements VectorNf, Savable, Cloneable, java.io.Ser
      *
      * @param scalar
      *            the value to divide this vectors attributes by.
-     * @return the result <code>VectorNf</code>.
+     * @return the result <code>Vector3f</code>.
      */
     public Vector3f divide(Vector3f scalar) {
         return new Vector3f(x / scalar.x, y / scalar.y, z / scalar.z);

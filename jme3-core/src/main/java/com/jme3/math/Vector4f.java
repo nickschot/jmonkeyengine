@@ -511,7 +511,7 @@ public final class Vector4f implements VectorNf, Savable, Cloneable, java.io.Ser
      *
      * @param scalar
      *            the value to divide this vectors attributes by.
-     * @return the result <code>VectorNf</code>.
+     * @return the result <code>Vector4f</code>.
      */
     public Vector4f divide(float scalar) {
         scalar = 1f/scalar;
@@ -542,7 +542,7 @@ public final class Vector4f implements VectorNf, Savable, Cloneable, java.io.Ser
      *
      * @param scalar
      *            the value to divide this vectors attributes by.
-     * @return the result <code>VectorNf</code>.
+     * @return the result <code>Vector3f</code>.
      */
     public Vector4f divide(Vector4f scalar) {
         return new Vector4f(x / scalar.x, y / scalar.y, z / scalar.z, w / scalar.w);
