@@ -80,6 +80,28 @@ public class FastMathTest {
     }
 
     @Test
+    public void testVectorLinearInterpolate() {
+        //Vectors to be tested
+        Vector3f v1s = new Vector3f(10.0f, 30.0f, 25.0f);
+        Vector3f v1e = new Vector3f(15.0f, 42.0f, 27.5f);
+        Vector3f v1eneg = new Vector3f(-15.0f, -42.0f, -27.5f);
+
+        //Resultvectors
+        Vector3f v1r1 = new Vector3f(10.5f, 31.2f, 25.25f);
+        Vector3f v1r2 = new Vector3f(12.5f, 36.0f, 26.25f);
+        Vector3f v1r3 = new Vector3f(15.0f, 42.0f, 27.5f);
+        Vector3f v1rneg = new Vector3f(-2.5f, -6.0f, -1.25f);
+
+        //Test different scales with correct vectors
+        assertEquals(v1r1, FastMath.interpolateLinear(0.1f, v1s, v1e));
+        assertEquals(v1r2, FastMath.interpolateLinear(0.5f, v1s, v1e));
+        assertEquals(v1r3, FastMath.interpolateLinear(1.0f, v1s, v1e));
+
+        //Test negative end vector which is also smaller than the start vector
+        assertEquals(v1rneg, FastMath.interpolateLinear(0.5f, v1s, v1eneg));
+    }
+
+    @Test
     public void interpolateCatmullRom() {
         float[] expected = new float[]{5.147461f, 5.3921876f, 5.7001953f, 6.0375f, 6.370117f, 6.6640625f, 6.8853517f};
 
