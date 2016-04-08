@@ -710,6 +710,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
         return ambientLightColor;
     }
 
+
     private static void renderMeshFromGeometry(Renderer renderer, Geometry geom) {
         Mesh mesh = geom.getMesh();
         int lodLevel = geom.getLodLevel();

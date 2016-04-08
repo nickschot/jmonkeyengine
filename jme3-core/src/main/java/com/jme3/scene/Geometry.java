@@ -42,6 +42,8 @@ import com.jme3.export.OutputCapsule;
 import com.jme3.material.Material;
 import com.jme3.math.Matrix4f;
 import com.jme3.renderer.Camera;
+import com.jme3.renderer.geometryrenderers.GeometryRenderer;
+import com.jme3.renderer.Renderer;
 import com.jme3.scene.VertexBuffer.Type;
 import com.jme3.util.TempVars;
 import java.io.IOException;
@@ -83,7 +85,12 @@ public class Geometry extends Spatial {
      * the {@link GeometryGroupNode}.
      */
     protected int startIndex = -1;
-        
+
+    /**
+     * The renderer that will render this geometry object
+     */
+    private GeometryRenderer renderer;
+
     /**
      * Serialization only. Do not use.
      */
@@ -583,5 +590,17 @@ public class Geometry extends Spatial {
                 setUserData(UserData.JME_SHAREDMESH, null);
             }
         }
+    }
+
+    public void setGeometryRenderer(GeometryRenderer renderer) {
+        this.renderer = renderer;
+    }
+
+    public GeometryRenderer getGeometryRenderer() {
+        return renderer;
+    }
+
+    public void render(Renderer render) {
+        if (this.renderer != null) this.renderer.render();
     }
 }
