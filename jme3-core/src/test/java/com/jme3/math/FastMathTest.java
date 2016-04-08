@@ -123,8 +123,8 @@ public class FastMathTest {
     @Test
     public void interpolateVectorCatmullRom() {
         Vector3f[] expected = new Vector3f[]{
-                new Vector3f(1.1719726f, 3.875293f, 0.31552735f),
-                new Vector3f(1.5320313f, 6.899219f, -0.19140625f),
+                new Vector3f(1.1719726f, 3.875293f , 0.31552735f),
+                new Vector3f(1.5320313f, 6.899219f , -0.19140625f),
                 new Vector3f(2.0151367f, 11.006349f, -0.91357434f),
                 new Vector3f(2.5562499f, 15.631251f, -1.7437499f),
                 new Vector3f(3.0903318f, 20.208498f, -2.574707f),
@@ -153,7 +153,6 @@ public class FastMathTest {
         assertEquals(p1.getY(), lowerBoundaryResult.getY(), 0.001f);
         assertEquals(p1.getZ(), lowerBoundaryResult.getZ(), 0.001f);
 
-
         Vector3f higherBoundaryResult = FastMath.interpolateCatmullRom(1.0f, 0.1f, p0, p1, p2, p3);
         assertEquals(p2.getX(), higherBoundaryResult.getX(), 0.001f);
         assertEquals(p2.getY(), higherBoundaryResult.getY(), 0.001f);
@@ -174,7 +173,42 @@ public class FastMathTest {
         assertEquals(9.0f, FastMath.interpolateBezier(1.0f, 0f, 5f, 7f, 9f), 0.001f);
     }
 
+    @Test
+    public void interpolateVectorBezier() {
+        Vector3f[] expected = new Vector3f[]{
+            new Vector3f(0.11816406f, 1.1982422f    , -3.368164f),
+            new Vector3f(0.7890625f , 4.5859375f    , -2.4453125f),
+            new Vector3f(1.4248047f , 8.290039f     , -2.0029297f),
+            new Vector3f(1.9375f    , 11.4375f      , -1.8125f),
+            new Vector3f(2.2392578f , 13.155273f    , -1.6455078f),
+            new Vector3f(2.2421875f , 12.5703125f   , -1.2734375f),
+            new Vector3f(1.8583984f , 8.80957f      , -0.46777344f)
+        };
 
+        Vector3f p0 = new Vector3f(-0.5f, -1.0f, -5.0f);
+        Vector3f p1 = new Vector3f(1.0f, 2.5f, 0.5f);
+        Vector3f p2 = new Vector3f(4.0f, 28.0f, -4.0f);
+        Vector3f p3 = new Vector3f(1.0f, 1.0f, 1.0f);
 
+        for (int i = 0; i < 7; i++) {
+            float value = ((float) i + 1) / 8;
 
+            Vector3f currentResult = FastMath.interpolateBezier(value, p0, p1, p2, p3);
+
+            assertEquals(expected[i].getX(), currentResult.getX(), 0.001f);
+            assertEquals(expected[i].getY(), currentResult.getY(), 0.001f);
+            assertEquals(expected[i].getZ(), currentResult.getZ(), 0.001f);
+        }
+
+        //Test boundaries
+        Vector3f lowerBoundaryResult = FastMath.interpolateBezier(0.0f, p0, p1, p2, p3);
+        assertEquals(p0.getX(), lowerBoundaryResult.getX(), 0.001f);
+        assertEquals(p0.getY(), lowerBoundaryResult.getY(), 0.001f);
+        assertEquals(p0.getZ(), lowerBoundaryResult.getZ(), 0.001f);
+
+        Vector3f higherBoundaryResult = FastMath.interpolateBezier(1.0f, p0, p1, p2, p3);
+        assertEquals(p3.getX(), higherBoundaryResult.getX(), 0.001f);
+        assertEquals(p3.getY(), higherBoundaryResult.getY(), 0.001f);
+        assertEquals(p3.getZ(), higherBoundaryResult.getZ(), 0.001f);
+    }
 }

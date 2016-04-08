@@ -353,9 +353,7 @@ final public class FastMath {
         if (store == null) {
             store = new Vector3f();
         }
-        store.x = interpolateBezier(u, p0.x, p1.x, p2.x, p3.x);
-        store.y = interpolateBezier(u, p0.y, p1.y, p2.y, p3.y);
-        store.z = interpolateBezier(u, p0.z, p1.z, p2.z, p3.z);
+        new BezierVectorInterpolation(p0, p1, p2, p3).interpolate(u, store);
         return store;
     }
 
