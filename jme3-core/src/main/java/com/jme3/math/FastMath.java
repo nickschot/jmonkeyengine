@@ -431,10 +431,12 @@ final public class FastMath {
      * @return the length of the segment
      */
     public static float getBezierP1toP2Length(Vector3f p0, Vector3f p1, Vector3f p2, Vector3f p3) {
+        BezierVectorInterpolation<Vector3f> interpolation = new BezierVectorInterpolation<Vector3f>(p0, p1, p2, p3);
+
         float delta = 0.02f, t = 0.0f, result = 0.0f;
         Vector3f v1 = p0.clone(), v2 = new Vector3f();
         while (t <= 1.0f) {
-            FastMath.interpolateBezier(t, p0, p1, p2, p3, v2);
+            interpolation.interpolate(t, v2);
             result += v1.subtractLocal(v2).length();
             v1.set(v2);
             t += delta;

@@ -107,6 +107,23 @@ public class FastMathTest {
         assertEquals(9.0f, FastMath.interpolateBezier(1.0f, 0f, 5f, 7f, 9f), 0.001f);
     }
 
+    @Test
+    public void testGetBezierP1toP2Length() {
+        Vector3f p0 = new Vector3f(10f, 10f, 10f);
+        Vector3f p1 = new Vector3f(12f, 14f, 11f);
+        Vector3f p2 = new Vector3f(15f, 15f, 17f);
+        Vector3f p3 = new Vector3f(17f, 20f, 19f);
+
+        assertEquals(FastMath.getBezierP1toP2Length(p0, p1, p2, p3), 15.394257f, 0.001f);
+
+        p0 = new Vector3f(12f, 10f, 15f);
+        p1 = new Vector3f(15f, 13f, 17f);
+        p2 = new Vector3f(16f, 17f, 19f);
+        p3 = new Vector3f(16f, 20f, 19f);
+
+        assertEquals(FastMath.getBezierP1toP2Length(p0, p1, p2, p3), 11.833087f, 0.001f);
+    }
+
 
 
 

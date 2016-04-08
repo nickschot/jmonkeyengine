@@ -1,5 +1,7 @@
 package com.jme3.math.interpolations.impl;
 
+import com.jme3.math.FastMath;
+import com.jme3.math.Vector3f;
 import com.jme3.math.VectorNf;
 import com.jme3.math.interpolations.api.NonPrimitiveInterpolation;
 
@@ -9,13 +11,17 @@ import com.jme3.math.interpolations.api.NonPrimitiveInterpolation;
 public class BezierVectorInterpolation<V extends VectorNf>  implements NonPrimitiveInterpolation<V> {
     private final BezierFloatInterpolation[] inters;
 
-    private final V lowerBound;
-    private final V upperBound;
+    private final V p0;
+    private final V p1;
+    private final V p2;
+    private final V p3;
+
 
     public BezierVectorInterpolation(V p0, V p1, V p2, V p3) {
-
-        this.lowerBound = p0;
-        this.upperBound = p3;
+        this.p0 = p0;
+        this.p1 = p1;
+        this.p2 = p2;
+        this.p3 = p3;
 
         inters = new BezierFloatInterpolation[p0.size()];
 
