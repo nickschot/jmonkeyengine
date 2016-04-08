@@ -115,8 +115,49 @@ public class FastMathTest {
             assertEquals(expected[i], FastMath.interpolateCatmullRom(value, 0.1f, 0f, 5f, 7f, 9f), 0.001f);
         }
 
+        //Test boundaries
         assertEquals(5.0f, FastMath.interpolateCatmullRom(0.0f, 0.1f, 0f, 5f, 7f, 9f), 0.001f);
         assertEquals(7.0f, FastMath.interpolateCatmullRom(1.0f, 0.1f, 0f, 5f, 7f, 9f), 0.001f);
+    }
+
+    @Test
+    public void interpolateVectorCatmullRom() {
+        Vector3f[] expected = new Vector3f[]{
+                new Vector3f(1.1719726f, 3.875293f, 0.31552735f),
+                new Vector3f(1.5320313f, 6.899219f, -0.19140625f),
+                new Vector3f(2.0151367f, 11.006349f, -0.91357434f),
+                new Vector3f(2.5562499f, 15.631251f, -1.7437499f),
+                new Vector3f(3.0903318f, 20.208498f, -2.574707f),
+                new Vector3f(3.5523434f, 24.172657f, -3.2992187f),
+                new Vector3f(3.8772454f, 26.958302f, -3.810058f)
+        };
+
+        Vector3f p0 = new Vector3f(-0.5f, -1.0f, -5.0f);
+        Vector3f p1 = new Vector3f(1.0f, 2.5f, 0.5f);
+        Vector3f p2 = new Vector3f(4.0f, 28.0f, -4.0f);
+        Vector3f p3 = new Vector3f(1.0f, 1.0f, 1.0f);
+
+        for (int i = 0; i < 7; i++) {
+            float value = ((float) i + 1) / 8;
+
+            Vector3f currentResult = FastMath.interpolateCatmullRom(value, 0.1f, p0, p1, p2, p3);
+
+            assertEquals(expected[i].getX(), currentResult.getX(), 0.001f);
+            assertEquals(expected[i].getY(), currentResult.getY(), 0.001f);
+            assertEquals(expected[i].getZ(), currentResult.getZ(), 0.001f);
+        }
+
+        //Test boundaries
+        Vector3f lowerBoundaryResult = FastMath.interpolateCatmullRom(0.0f, 0.1f, p0, p1, p2, p3);
+        assertEquals(p1.getX(), lowerBoundaryResult.getX(), 0.001f);
+        assertEquals(p1.getY(), lowerBoundaryResult.getY(), 0.001f);
+        assertEquals(p1.getZ(), lowerBoundaryResult.getZ(), 0.001f);
+
+
+        Vector3f higherBoundaryResult = FastMath.interpolateCatmullRom(1.0f, 0.1f, p0, p1, p2, p3);
+        assertEquals(p2.getX(), higherBoundaryResult.getX(), 0.001f);
+        assertEquals(p2.getY(), higherBoundaryResult.getY(), 0.001f);
+        assertEquals(p2.getZ(), higherBoundaryResult.getZ(), 0.001f);
     }
 
     @Test
