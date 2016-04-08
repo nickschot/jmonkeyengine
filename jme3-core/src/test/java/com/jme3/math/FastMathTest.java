@@ -99,6 +99,10 @@ public class FastMathTest {
 
         //Test negative end vector which is also smaller than the start vector
         assertEquals(v1rneg, FastMath.interpolateLinear(0.5f, v1s, v1eneg));
+
+        //Test out of bounds scales
+        assertEquals(v1s, FastMath.interpolateLinear(-0.5f, v1s, v1e));
+        assertEquals(v1e, FastMath.interpolateLinear(1.5f, v1s, v1e));
     }
 
     @Test

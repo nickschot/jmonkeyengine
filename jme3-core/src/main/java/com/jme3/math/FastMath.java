@@ -151,9 +151,7 @@ final public class FastMath {
         if (store == null) {
             store = new Vector3f();
         }
-        store.x = interpolateLinear(scale, startValue.x, endValue.x);
-        store.y = interpolateLinear(scale, startValue.y, endValue.y);
-        store.z = interpolateLinear(scale, startValue.z, endValue.z);
+        new LinearVectorInterpolation(startValue, endValue).interpolate(scale, store);
         return store;
     }
 
