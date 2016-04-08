@@ -851,6 +851,9 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
      * g_LightPosition.w is the inverse radius (1/r) of the light (for
      * attenuation) <br/> </p>
      */
+
+    @Deprecated
+    // Staat nu in SinglePassGeometryRenderer
     protected int updateLightListUniforms(Shader shader, Geometry g, LightList lightList, int numLights, RenderManager rm, int startIndex) {
         if (numLights == 0) { // this shader does not do lighting, ignore.
             return 0;
@@ -953,6 +956,8 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
         return curIndex;
     }
 
+    @Deprecated
+    // Staat nu in MultiPassGeometryRenderer
     protected void renderMultipassLighting(Shader shader, Geometry g, LightList lightList, RenderManager rm) {
 
         Renderer r = rm.getRenderer();
@@ -1187,6 +1192,8 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
         r.setShader(technique.getShader());
     }
 
+    // Staat nu in GeometryRenderer
+    @Deprecated
     private void clearUniformsSetByCurrent(Shader shader) {
         ListMap<String, Uniform> uniforms = shader.getUniformMap();
         int size = uniforms.size();
@@ -1196,6 +1203,8 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
         }
     }
 
+    // Staat nu in GeometryRenderer
+    @Deprecated
     private void resetUniformsNotSetByCurrent(Shader shader) {
         ListMap<String, Uniform> uniforms = shader.getUniformMap();
         int size = uniforms.size();
