@@ -307,22 +307,6 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
     }
 
     /**
-     * Returns the currently active technique.
-     * <p>
-     * The technique is selected automatically by the {@link RenderManager}
-     * based on system capabilities. Users may select their own
-     * technique by using
-     * {@link #selectTechnique(java.lang.String, com.jme3.renderer.RenderManager) }.
-     *
-     * @return the currently active technique.
-     *
-     * @see #selectTechnique(java.lang.String, com.jme3.renderer.RenderManager)
-     */
-    public Technique getActiveTechnique() {
-        return technique;
-    }
-
-    /**
      * Check if the transparent value marker is set on this material.
      * @return True if the transparent value marker is set on this material.
      * @see #setTransparent(boolean)
@@ -370,24 +354,6 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
      */
     public void setReceivesShadows(boolean receivesShadows) {
         this.receivesShadows = receivesShadows;
-    }
-
-    /**
-     * Acquire the additional {@link RenderState render state} to apply
-     * for this material.
-     *
-     * <p>The first call to this method will create an additional render
-     * state which can be modified by the user to apply any render
-     * states in addition to the ones used by the renderer. Only render
-     * states which are modified in the additional render state will be applied.
-     *
-     * @return The additional render state.
-     */
-    public RenderState getAdditionalRenderState() {
-        if (additionalState == null) {
-            additionalState = RenderState.ADDITIONAL.clone();
-        }
-        return additionalState;
     }
 
     /**
@@ -695,6 +661,148 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
         setParam(name, VarType.Vector4, value);
     }
 
+
+    public void write(JmeExporter ex) throws IOException {
+        OutputCapsule oc = ex.getCapsule(this);
+        oc.write(def.getAssetName(), "material_def", null);
+        oc.write(additionalState, "render_state", null);
+        oc.write(transparent, "is_transparent", false);
+        oc.write(name, "name", null);
+        oc.writeStringSavableMap(paramValues, "parameters", null);
+    }
+
+    public void read(JmeImporter im) throws IOException {
+        InputCapsule ic = im.getCapsule(this);
+
+        name = ic.readString("name", null);
+        additionalState = (RenderState) ic.readSavable("render_state", null);
+        transparent = ic.readBoolean("is_transparent", false);
+
+        // Load the material def
+        String defName = ic.readString("material_def", null);
+        HashMap<String, MatParam> params = (HashMap<String, MatParam>) ic.readStringSavableMap("parameters", null);
+
+        boolean enableVcolor = false;
+        boolean separateTexCoord = false;
+        boolean applyDefaultValues = false;
+        boolean guessRenderStateApply = false;
+
+        int ver = ic.getSavableVersion(Material.class);
+        if (ver < 1) {
+            applyDefaultValues = true;
+        }
+        if (ver < 2) {
+            guessRenderStateApply = true;
+        }
+        if (im.getFormatVersion() == 0) {
+            // Enable compatibility with old models
+            if (defName.equalsIgnoreCase("Common/MatDefs/Misc/VertexColor.j3md")) {
+                // Using VertexColor, switch to Unshaded and set VertexColor=true
+                enableVcolor = true;
+                defName = "Common/MatDefs/Misc/Unshaded.j3md";
+            } else if (defName.equalsIgnoreCase("Common/MatDefs/Misc/SimpleTextured.j3md")
+                    || defName.equalsIgnoreCase("Common/MatDefs/Misc/SolidColor.j3md")) {
+                // Using SimpleTextured/SolidColor, just switch to Unshaded
+                defName = "Common/MatDefs/Misc/Unshaded.j3md";
+            } else if (defName.equalsIgnoreCase("Common/MatDefs/Misc/WireColor.j3md")) {
+                // Using WireColor, set wireframe renderstate = true and use Unshaded
+                getAdditionalRenderState().setWireframe(true);
+                defName = "Common/MatDefs/Misc/Unshaded.j3md";
+            } else if (defName.equalsIgnoreCase("Common/MatDefs/Misc/Unshaded.j3md")) {
+                // Uses unshaded, ensure that the proper param is set
+                MatParam value = params.get("SeperateTexCoord");
+                if (value != null && ((Boolean) value.getValue()) == true) {
+                    params.remove("SeperateTexCoord");
+                    separateTexCoord = true;
+                }
+            }
+            assert applyDefaultValues && guessRenderStateApply;
+        }
+
+        def = (MaterialDef) im.getAssetManager().loadAsset(new AssetKey(defName));
+        paramValues = new ListMap<String, MatParam>();
+
+        // load the textures and update nextTexUnit
+        for (Map.Entry<String, MatParam> entry : params.entrySet()) {
+            MatParam param = entry.getValue();
+            if (param instanceof MatParamTexture) {
+                MatParamTexture texVal = (MatParamTexture) param;
+
+                if (nextTexUnit < texVal.getUnit() + 1) {
+                    nextTexUnit = texVal.getUnit() + 1;
+                }
+
+                // the texture failed to load for this param
+                // do not add to param values
+                if (texVal.getTextureValue() == null || texVal.getTextureValue().getImage() == null) {
+                    continue;
+                }
+            }
+
+            if (im.getFormatVersion() == 0 && param.getName().startsWith("m_")) {
+                // Ancient version of jME3 ...
+                param.setName(param.getName().substring(2));
+            }
+
+            if (def.getMaterialParam(param.getName()) == null) {
+                logger.log(Level.WARNING, "The material parameter is not defined: {0}. Ignoring..",
+                        param.getName());
+            } else {
+                checkSetParam(param.getVarType(), param.getName());
+                paramValues.put(param.getName(), param);
+            }
+        }
+
+        if (applyDefaultValues) {
+            // compatability with old versions where default vars were
+            // not available
+            for (MatParam param : def.getMaterialParams()) {
+                if (param.getValue() != null && paramValues.get(param.getName()) == null) {
+                    setParam(param.getName(), param.getVarType(), param.getValue());
+                }
+            }
+        }
+        if (guessRenderStateApply && additionalState != null) {
+            // Try to guess values of "apply" render state based on defaults
+            // if value != default then set apply to true
+            additionalState.applyPolyOffset = additionalState.offsetEnabled;
+            additionalState.applyAlphaFallOff = additionalState.alphaTest;
+            additionalState.applyAlphaTest = additionalState.alphaTest;
+            additionalState.applyBlendMode = additionalState.blendMode != BlendMode.Off;
+            additionalState.applyColorWrite = !additionalState.colorWrite;
+            additionalState.applyCullMode = additionalState.cullMode != FaceCullMode.Back;
+            additionalState.applyDepthTest = !additionalState.depthTest;
+            additionalState.applyDepthWrite = !additionalState.depthWrite;
+            additionalState.applyPointSprite = additionalState.pointSprite;
+            additionalState.applyStencilTest = additionalState.stencilTest;
+            additionalState.applyWireFrame = additionalState.wireframe;
+        }
+        if (enableVcolor) {
+            setBoolean("VertexColor", true);
+        }
+        if (separateTexCoord) {
+            setBoolean("SeparateTexCoord", true);
+        }
+    }
+
+    /**
+     * Acquire the additional {@link RenderState render state} to apply
+     * for this material.
+     *
+     * <p>The first call to this method will create an additional render
+     * state which can be modified by the user to apply any render
+     * states in addition to the ones used by the renderer. Only render
+     * states which are modified in the additional render state will be applied.
+     *
+     * @return The additional render state.
+     */
+    public RenderState getAdditionalRenderState() {
+        if (additionalState == null) {
+            additionalState = RenderState.ADDITIONAL.clone();
+        }
+        return additionalState;
+    }
+
     private ColorRGBA getAmbientColor(LightList lightList, boolean removeLights) {
         ambientLightColor.set(0, 0, 0, 1);
         for (int j = 0; j < lightList.size(); j++) {
@@ -945,6 +1053,22 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
             r.setShader(shader);
             renderMeshFromGeometry(r, g);
         }
+    }
+
+    /**
+     * Returns the currently active technique.
+     * <p>
+     * The technique is selected automatically by the {@link RenderManager}
+     * based on system capabilities. Users may select their own
+     * technique by using
+     * {@link #selectTechnique(java.lang.String, com.jme3.renderer.RenderManager) }.
+     *
+     * @return the currently active technique.
+     *
+     * @see #selectTechnique(java.lang.String, com.jme3.renderer.RenderManager)
+     */
+    public Technique getActiveTechnique() {
+        return technique;
     }
 
     /**
@@ -1230,128 +1354,5 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
      */
     public void render(Geometry geom, RenderManager rm) {
         render(geom, geom.getWorldLightList(), rm);
-    }
-
-    public void write(JmeExporter ex) throws IOException {
-        OutputCapsule oc = ex.getCapsule(this);
-        oc.write(def.getAssetName(), "material_def", null);
-        oc.write(additionalState, "render_state", null);
-        oc.write(transparent, "is_transparent", false);
-        oc.write(name, "name", null);
-        oc.writeStringSavableMap(paramValues, "parameters", null);
-    }
-
-    public void read(JmeImporter im) throws IOException {
-        InputCapsule ic = im.getCapsule(this);
-
-        name = ic.readString("name", null);
-        additionalState = (RenderState) ic.readSavable("render_state", null);
-        transparent = ic.readBoolean("is_transparent", false);
-
-        // Load the material def
-        String defName = ic.readString("material_def", null);
-        HashMap<String, MatParam> params = (HashMap<String, MatParam>) ic.readStringSavableMap("parameters", null);
-
-        boolean enableVcolor = false;
-        boolean separateTexCoord = false;
-        boolean applyDefaultValues = false;
-        boolean guessRenderStateApply = false;
-
-        int ver = ic.getSavableVersion(Material.class);
-        if (ver < 1) {
-            applyDefaultValues = true;
-        }
-        if (ver < 2) {
-            guessRenderStateApply = true;
-        }
-        if (im.getFormatVersion() == 0) {
-            // Enable compatibility with old models
-            if (defName.equalsIgnoreCase("Common/MatDefs/Misc/VertexColor.j3md")) {
-                // Using VertexColor, switch to Unshaded and set VertexColor=true
-                enableVcolor = true;
-                defName = "Common/MatDefs/Misc/Unshaded.j3md";
-            } else if (defName.equalsIgnoreCase("Common/MatDefs/Misc/SimpleTextured.j3md")
-                    || defName.equalsIgnoreCase("Common/MatDefs/Misc/SolidColor.j3md")) {
-                // Using SimpleTextured/SolidColor, just switch to Unshaded
-                defName = "Common/MatDefs/Misc/Unshaded.j3md";
-            } else if (defName.equalsIgnoreCase("Common/MatDefs/Misc/WireColor.j3md")) {
-                // Using WireColor, set wireframe renderstate = true and use Unshaded
-                getAdditionalRenderState().setWireframe(true);
-                defName = "Common/MatDefs/Misc/Unshaded.j3md";
-            } else if (defName.equalsIgnoreCase("Common/MatDefs/Misc/Unshaded.j3md")) {
-                // Uses unshaded, ensure that the proper param is set
-                MatParam value = params.get("SeperateTexCoord");
-                if (value != null && ((Boolean) value.getValue()) == true) {
-                    params.remove("SeperateTexCoord");
-                    separateTexCoord = true;
-                }
-            }
-            assert applyDefaultValues && guessRenderStateApply;
-        }
-
-        def = (MaterialDef) im.getAssetManager().loadAsset(new AssetKey(defName));
-        paramValues = new ListMap<String, MatParam>();
-
-        // load the textures and update nextTexUnit
-        for (Map.Entry<String, MatParam> entry : params.entrySet()) {
-            MatParam param = entry.getValue();
-            if (param instanceof MatParamTexture) {
-                MatParamTexture texVal = (MatParamTexture) param;
-
-                if (nextTexUnit < texVal.getUnit() + 1) {
-                    nextTexUnit = texVal.getUnit() + 1;
-                }
-
-                // the texture failed to load for this param
-                // do not add to param values
-                if (texVal.getTextureValue() == null || texVal.getTextureValue().getImage() == null) {
-                    continue;
-                }
-            }
-
-            if (im.getFormatVersion() == 0 && param.getName().startsWith("m_")) {
-                // Ancient version of jME3 ...
-                param.setName(param.getName().substring(2));
-            }
-
-            if (def.getMaterialParam(param.getName()) == null) {
-                logger.log(Level.WARNING, "The material parameter is not defined: {0}. Ignoring..",
-                                          param.getName());
-            } else {
-                checkSetParam(param.getVarType(), param.getName());
-                paramValues.put(param.getName(), param);
-            }
-        }
-
-        if (applyDefaultValues) {
-            // compatability with old versions where default vars were
-            // not available
-            for (MatParam param : def.getMaterialParams()) {
-                if (param.getValue() != null && paramValues.get(param.getName()) == null) {
-                    setParam(param.getName(), param.getVarType(), param.getValue());
-                }
-            }
-        }
-        if (guessRenderStateApply && additionalState != null) {
-            // Try to guess values of "apply" render state based on defaults
-            // if value != default then set apply to true
-            additionalState.applyPolyOffset = additionalState.offsetEnabled;
-            additionalState.applyAlphaFallOff = additionalState.alphaTest;
-            additionalState.applyAlphaTest = additionalState.alphaTest;
-            additionalState.applyBlendMode = additionalState.blendMode != BlendMode.Off;
-            additionalState.applyColorWrite = !additionalState.colorWrite;
-            additionalState.applyCullMode = additionalState.cullMode != FaceCullMode.Back;
-            additionalState.applyDepthTest = !additionalState.depthTest;
-            additionalState.applyDepthWrite = !additionalState.depthWrite;
-            additionalState.applyPointSprite = additionalState.pointSprite;
-            additionalState.applyStencilTest = additionalState.stencilTest;
-            additionalState.applyWireFrame = additionalState.wireframe;
-        }
-        if (enableVcolor) {
-            setBoolean("VertexColor", true);
-        }
-        if (separateTexCoord) {
-            setBoolean("SeparateTexCoord", true);
-        }
     }
 }
