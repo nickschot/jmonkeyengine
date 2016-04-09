@@ -97,6 +97,9 @@ public abstract class GeometryRenderer {
      * @param rm The render manager requesting the rendering
      */
     public void render() {
+
+        System.out.println(this.geometry.getMaterial().getActiveTechnique().getDef().getName());
+
         Technique technique = this.geometry.getMaterial().getActiveTechnique();
         Renderer renderer = this.renderManager.getRenderer();
         RenderState rs = this.geometry.getMaterial().getAdditionalRenderState();
@@ -108,11 +111,6 @@ public abstract class GeometryRenderer {
         } else {
             this.renderManager.setWorldMatrix(this.geometry.getWorldMatrix());
         }
-
-        String forcedTechnique = renderManager.getForcedTechnique();
-        Material forcedMaterial = renderManager.getForcedMaterial();
-
-        Material oldMaterial = null;
 
         if (renderManager.getForcedRenderState() != null) {
             renderer.applyRenderState(renderManager.getForcedRenderState());
@@ -128,7 +126,6 @@ public abstract class GeometryRenderer {
 
 
         clearUniformsSetByCurrent(shader);
-        System.out.println(this.geometry.getMaterial().getActiveTechnique());
         renderManager.updateUniformBindings(this.geometry.getMaterial().getActiveTechnique().getWorldBindUniforms());
 
         ListMap<String, MatParam> paramsMap = geometry.getMaterial().getParamsMap();

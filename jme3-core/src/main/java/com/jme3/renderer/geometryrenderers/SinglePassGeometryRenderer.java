@@ -43,12 +43,6 @@ public class SinglePassGeometryRenderer extends GeometryRenderer {
 
         LightList ll = this.geometry.getWorldLightList();
 
-        logger.info("RENDERFORLIGHTING");
-
-        for (Light l : ll) {
-            logger.info(l.toString());
-        }
-
         resetUniformsNotSetByCurrent(shader);
         if (ll.size() == 0) {
             updateLightListUniforms(shader, this.geometry, ll, this.renderManager.getSinglePassLightBatchSize(), this.renderManager, 0);

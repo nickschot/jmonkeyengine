@@ -350,7 +350,6 @@ public class RenderManager {
      * @param mat The forced material to set, or null to return to normal
      */
     public void setForcedMaterial(Material mat) {
-        System.out.println("Forcing a material");
         forcedMaterial = mat;
     }
 

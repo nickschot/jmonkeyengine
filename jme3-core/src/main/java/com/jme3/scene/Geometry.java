@@ -612,7 +612,6 @@ public class Geometry extends Spatial {
      * @param rm The render manager to preload for
      */
     public void preload(RenderManager rm) {
-        System.out.println("IK BEN IN DE PRELOAD, EN JIJ?");
 
 
         this.autoSelectRenderer(rm);
@@ -786,6 +785,9 @@ public class Geometry extends Spatial {
         RenderState forcedRenderState = renderManager.getForcedRenderState();
 
         if (forcedTechniqueName!= null && this.getMaterial().getMaterialDef().getTechniqueDef(forcedTechniqueName) != null) {
+            System.out.println("Forcing a technique override");
+
+
             this.restorableTechniqueName = this.getMaterial().getActiveTechnique() != null ? this.getMaterial().getActiveTechnique().getDef().getName() : "Default";
             this.selectTechnique(forcedTechniqueName, renderManager);
 
@@ -795,29 +797,29 @@ public class Geometry extends Spatial {
                 renderManager.setForcedRenderState(this.getMaterial().getActiveTechnique().getDef().getForcedRenderState());
             }
         } else if (forcedMaterial != null) {
+            System.out.println("Forcing a material override");
+
             this.restorableMaterial = this.getMaterial();
             this.setMaterial(forcedMaterial);
-
-            this.autoSelectRenderer(renderManager);
-
-
-            System.out.println("Got a forced material");
         }
-
-
     }
 
     private void restoreOverrides(RenderManager renderManager) {
 
         if (restorableMaterial != null) {
+            System.out.println("Restoring material");
             this.setMaterial(restorableMaterial);
         }
 
         if (restorableRenderState != null) {
+
+            System.out.println("Restoring renderstate");
             renderManager.setForcedRenderState(restorableRenderState);
         }
 
         if (this.restorableTechniqueName != null) {
+
+            System.out.println("Restoring techniques");
             this.selectTechnique(this.restorableTechniqueName, renderManager);
         }
 

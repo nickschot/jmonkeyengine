@@ -49,12 +49,6 @@ public class MultiPassGeometryRenderer extends GeometryRenderer {
 
         LightList ll = this.geometry.getWorldLightList();
 
-        logger.info("RENDERFORLIGHTING");
-
-        for (Light l : ll) {
-            logger.info(l.toString());
-        }
-
 
         for (int i = 0; i < ll.size(); i++) {
             Light l = ll.get(i);
