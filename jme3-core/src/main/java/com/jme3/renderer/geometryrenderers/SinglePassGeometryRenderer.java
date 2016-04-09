@@ -41,7 +41,7 @@ public class SinglePassGeometryRenderer extends GeometryRenderer {
         Shader shader = this.geometry.getMaterial().getActiveTechnique().getShader();
         Renderer renderer = this.renderManager.getRenderer();
 
-        LightList ll = this.geometry.getWorldLightList();
+        LightList ll = this.renderManager.getFilteredLightList();
 
         resetUniformsNotSetByCurrent(shader);
         if (ll.size() == 0) {

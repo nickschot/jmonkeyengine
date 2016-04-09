@@ -97,20 +97,10 @@ public abstract class GeometryRenderer {
      * @param rm The render manager requesting the rendering
      */
     public void render() {
-
-        System.out.println(this.geometry.getMaterial().getActiveTechnique().getDef().getName());
-
         Technique technique = this.geometry.getMaterial().getActiveTechnique();
         Renderer renderer = this.renderManager.getRenderer();
         RenderState rs = this.geometry.getMaterial().getAdditionalRenderState();
         Shader shader = technique.getShader();
-
-        // Firstly lets set the world transforms
-        if (this.geometry.isIgnoreTransform()) {
-            this.renderManager.setWorldMatrix(Matrix4f.IDENTITY);
-        } else {
-            this.renderManager.setWorldMatrix(this.geometry.getWorldMatrix());
-        }
 
         if (renderManager.getForcedRenderState() != null) {
             renderer.applyRenderState(renderManager.getForcedRenderState());

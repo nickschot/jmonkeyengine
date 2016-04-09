@@ -47,7 +47,7 @@ public class MultiPassGeometryRenderer extends GeometryRenderer {
         boolean isFirstLight = true;
         boolean isSecondLight = false;
 
-        LightList ll = this.geometry.getWorldLightList();
+        LightList ll = this.renderManager.getFilteredLightList();
 
 
         for (int i = 0; i < ll.size(); i++) {

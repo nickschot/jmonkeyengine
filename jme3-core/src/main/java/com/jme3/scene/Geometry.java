@@ -638,7 +638,19 @@ public class Geometry extends Spatial {
     }
 
     public void render(RenderManager rm) {
+        // Firstly lets set the world transforms
+        if (this.isIgnoreTransform()) {
+            rm.setWorldMatrix(Matrix4f.IDENTITY);
+        } else {
+            rm.setWorldMatrix(this.getWorldMatrix());
+        }
 
+        if (rm.getLightFilter() != null) {
+            rm.getFilteredLightList().clear();
+            rm.getLightFilter().filterLights(this, rm.getFilteredLightList());
+        }
+
+        /*
         this.setOverrides(rm);
 
         this.autoSelectRenderer(rm);
@@ -649,7 +661,61 @@ public class Geometry extends Spatial {
             System.out.println("Ik heb helemaal geen renderer");
         }
 
-        this.restoreOverrides(rm);
+        this.restoreOverrides(rm); */
+
+        //if forcedTechnique we try to force it for render,
+        //if it does not exists in the mat def, we check for forcedMaterial and render the geom if not null
+        //else the geom is not rendered
+
+        String tmpTech;
+
+        //if forcedTechnique we try to force it for render,
+        //if it does not exists in the mat def, we check for forcedMaterial and render the geom if not null
+        //else the geom is not rendered
+        if (rm.getForcedTechnique() != null) {
+            if (this.getMaterial().getMaterialDef().getTechniqueDef(rm.getForcedTechnique()) != null) {
+                tmpTech = this.getMaterial().getActiveTechnique() != null ? this.getMaterial().getActiveTechnique().getDef().getName() : "Default";
+                this.selectTechnique(rm.getForcedTechnique(), rm);
+                //saving forcedRenderState for future calls
+                RenderState tmpRs = rm.getForcedRenderState();
+                if (this.getMaterial().getActiveTechnique().getDef().getForcedRenderState() != null) {
+                    //forcing forced technique renderState
+                    rm.setForcedRenderState(this.getMaterial().getActiveTechnique().getDef().getForcedRenderState());
+                }
+                // use geometry's material
+                this.getRendererForTechnique(rm).render();
+                this.selectTechnique(tmpTech, rm);
+
+                //restoring forcedRenderState
+                rm.setForcedRenderState(tmpRs);
+
+                //Reverted this part from revision 6197
+                //If forcedTechnique does not exists, and forcedMaterial is not set, the geom MUST NOT be rendered
+            } else if (rm.getForcedMaterial() != null) {
+                // use forced material
+                Material oldMaterial = this.getMaterial();
+
+                this.setMaterial(rm.getForcedMaterial());
+                this.getRendererForTechnique(rm).render();
+
+                this.setMaterial(oldMaterial);
+            }
+        } else if (rm.getForcedMaterial() != null) {
+            // use forced material
+            Material oldMaterial = this.getMaterial();
+
+            this.setMaterial(rm.getForcedMaterial());
+            this.getRendererForTechnique(rm).render();
+
+            this.setMaterial(oldMaterial);
+        } else {
+            this.autoSelectRenderer(rm);
+            this.getRendererForTechnique(rm).render();
+        }
+
+
+
+
     }
 
     public void autoSelectRenderer(RenderManager rm) {
@@ -662,6 +728,7 @@ public class Geometry extends Spatial {
     }
 
     private GeometryRenderer getRendererForTechnique(RenderManager rm) {
+
         switch (material.getActiveTechnique().getDef().getLightMode()) {
             case Disable:
                 return new NoLightGeometryRenderer(this, rm);
@@ -786,7 +853,6 @@ public class Geometry extends Spatial {
 
         if (forcedTechniqueName!= null && this.getMaterial().getMaterialDef().getTechniqueDef(forcedTechniqueName) != null) {
             System.out.println("Forcing a technique override");
-
 
             this.restorableTechniqueName = this.getMaterial().getActiveTechnique() != null ? this.getMaterial().getActiveTechnique().getDef().getName() : "Default";
             this.selectTechnique(forcedTechniqueName, renderManager);

@@ -357,6 +357,14 @@ public class RenderManager {
         return this.forcedMaterial;
     }
 
+    public LightList getFilteredLightList() {
+        return this.filteredLightList;
+    }
+
+    public LightFilter getLightFilter() {
+        return this.lightFilter;
+    }
+
     /**
      * Returns the forced render state previously set with 
      * {@link #setForcedRenderState(com.jme3.material.RenderState) }.
