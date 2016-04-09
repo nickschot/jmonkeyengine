@@ -26,7 +26,7 @@ public class LinearVectorInterpolation<V extends VectorNf> implements NonPrimiti
     @Override
     public void interpolate(float value, V resVector) {
         for (int i = 0; i < resVector.size(); i++) {
-            resVector.set(i, inters[i].interpolate(value));
+            resVector.setIndex(i, inters[i].interpolate(value));
         }
     }
 }

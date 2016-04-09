@@ -770,6 +770,7 @@ public final class Vector2f implements VectorNf, Savable, Cloneable, java.io.Ser
      * @throws IllegalArgumentException
      *             if index is not one of 0, 1
      */
+    @Override
     public float get(int index) {
         switch (index) {
             case 0:
@@ -788,7 +789,8 @@ public final class Vector2f implements VectorNf, Savable, Cloneable, java.io.Ser
      * @throws IllegalArgumentException
      *             if index is not one of 0, 1
      */
-    public void set(int index, float value) {
+    @Override
+    public void setIndex(int index, float value) {
         switch (index) {
             case 0:
                 x = value;

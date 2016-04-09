@@ -11,5 +11,5 @@ public interface VectorNf {
 
     public float get(int index);
 
-    public void set(int index, float value);
+    public void setIndex(int index, float value);
 }

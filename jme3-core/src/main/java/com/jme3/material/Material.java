@@ -45,6 +45,10 @@ import com.jme3.renderer.Caps;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.Renderer;
 import com.jme3.renderer.RendererException;
+import com.jme3.renderer.geometryrenderers.GeometryRenderer;
+import com.jme3.renderer.geometryrenderers.MultiPassGeometryRenderer;
+import com.jme3.renderer.geometryrenderers.NoLightGeometryRenderer;
+import com.jme3.renderer.geometryrenderers.SinglePassGeometryRenderer;
 import com.jme3.renderer.queue.RenderQueue.Bucket;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
@@ -80,6 +84,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
     private static final RenderState additiveLight = new RenderState();
     private static final RenderState depthOnly = new RenderState();
     private static final Quaternion nullDirLight = new Quaternion(0, -1, 0, -1);
+    private static final boolean SUPERSHORTCUT = false;
 
     static {
         depthOnly.setDepthTest(true);
@@ -803,7 +808,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
         return additionalState;
     }
 
-    private ColorRGBA getAmbientColor(LightList lightList, boolean removeLights) {
+    /* TODO */ public ColorRGBA getAmbientColor(LightList lightList, boolean removeLights) {
         ambientLightColor.set(0, 0, 0, 1);
         for (int j = 0; j < lightList.size(); j++) {
             Light l = lightList.get(j);
@@ -1161,6 +1166,19 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
         sortingId = -1;
     }
 
+    private GeometryRenderer getRendererForTechnique(Technique t, Geometry g, RenderManager rm, LightList ll) {
+        switch (t.getDef().getLightMode()) {
+            case Disable:
+                return new NoLightGeometryRenderer(g, rm);
+            case SinglePass:
+                return new SinglePassGeometryRenderer(g, ll, rm);
+            case MultiPass:
+                return new MultiPassGeometryRenderer(g, ll, rm);
+            default:
+                throw new IllegalArgumentException("OpenGL1 is not supported");
+        }
+    }
+
     private void autoSelectTechnique(RenderManager rm) {
         if (technique == null) {
             selectTechnique("Default", rm);
@@ -1279,11 +1297,18 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
      * @param lights Presorted and filtered light list to use for rendering
      * @param rm The render manager requesting the rendering
      */
+    @Deprecated
     public void render(Geometry geom, LightList lights, RenderManager rm) {
         autoSelectTechnique(rm);
         TechniqueDef techDef = technique.getDef();
 
         if (techDef.isNoRender()) return;
+
+        if (SUPERSHORTCUT) {
+            this.getRendererForTechnique(technique, geom,  rm, lights).render();
+            return;
+        }
+
 
         Renderer r = rm.getRenderer();
 

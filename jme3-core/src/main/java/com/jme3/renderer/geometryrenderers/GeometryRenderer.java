@@ -24,12 +24,48 @@ public abstract class GeometryRenderer {
     protected final Geometry geometry;
     protected final RenderManager renderManager;
 
+    protected RenderState mergedRenderState = new RenderState();
+
     public GeometryRenderer(Geometry g, RenderManager rm) {
         this.geometry = g;
         this.renderManager = rm;
     }
 
-    public abstract void render();
+    public void render() {
+        Technique technique = this.geometry.getMaterial().getActiveTechnique();
+        Renderer renderer = this.renderManager.getRenderer();
+
+        RenderState rs = this.geometry.getMaterial().getAdditionalRenderState();
+
+        Shader shader = technique.getShader();
+
+        if (renderManager.getForcedRenderState() != null) {
+            renderer.applyRenderState(renderManager.getForcedRenderState());
+        } else {
+            TechniqueDef techDef = technique.getDef();
+
+            if (techDef.getRenderState() != null) {
+                renderer.applyRenderState(techDef.getRenderState().copyMergedTo(rs, mergedRenderState));
+            } else {
+                renderer.applyRenderState(RenderState.DEFAULT.copyMergedTo(rs, mergedRenderState));
+            }
+        }
+
+
+        clearUniformsSetByCurrent(shader);
+        renderManager.updateUniformBindings(this.geometry.getMaterial().getActiveTechnique().getWorldBindUniforms());
+
+        ListMap<String, MatParam> paramsMap = geometry.getMaterial().getParamsMap();
+
+        for (int i = 0; i < paramsMap.size(); i++) {
+            MatParam param = paramsMap.getValue(i);
+            param.apply(renderer, technique);
+        }
+
+        this.renderForLighting();
+    }
+
+    public abstract void renderForLighting();
 
     protected void renderMeshFromGeometry() {
         Mesh mesh = this.geometry.getMesh();
@@ -67,6 +103,15 @@ public abstract class GeometryRenderer {
                     u.clearValue();
                 }
             }
+        }
+    }
+
+    protected void clearUniformsSetByCurrent(Shader shader) {
+        ListMap<String, Uniform> uniforms = shader.getUniformMap();
+        int size = uniforms.size();
+        for (int i = 0; i < size; i++) {
+            Uniform u = uniforms.getValue(i);
+            u.clearSetByCurrentMaterial();
         }
     }
 

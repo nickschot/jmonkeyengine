@@ -1,7 +1,10 @@
 package com.jme3.renderer.geometryrenderers;
 
 import com.jme3.light.*;
+import com.jme3.material.MatParam;
 import com.jme3.material.RenderState;
+import com.jme3.material.Technique;
+import com.jme3.material.TechniqueDef;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 import com.jme3.math.Vector4f;
@@ -11,7 +14,10 @@ import com.jme3.scene.Geometry;
 import com.jme3.shader.Shader;
 import com.jme3.shader.Uniform;
 import com.jme3.shader.VarType;
+import com.jme3.util.ListMap;
 import com.jme3.util.TempVars;
+
+import java.util.Collection;
 
 /**
  * Created by Lennart on 08/04/2016.
@@ -26,7 +32,8 @@ public class SinglePassGeometryRenderer extends GeometryRenderer {
     }
 
     @Override
-    public void render() {
+    public void renderForLighting() {
+
         int nbRenderedLights = 0;
 
         // TODO
@@ -40,11 +47,16 @@ public class SinglePassGeometryRenderer extends GeometryRenderer {
             renderMeshFromGeometry();
         } else {
             while (nbRenderedLights < this.lightList.size()) {
-                updateLightListUniforms(shader, this.geometry, this.lightList, this.renderManager.getSinglePassLightBatchSize(), this.renderManager, nbRenderedLights);
+                nbRenderedLights = updateLightListUniforms(shader, this.geometry, this.lightList, this.renderManager.getSinglePassLightBatchSize(), this.renderManager, nbRenderedLights);
                 renderer.setShader(shader);
                 renderMeshFromGeometry();
             }
         }
+
+        resetUniformsNotSetByCurrent(shader);
+        renderer.setShader(shader);
+
+        renderMeshFromGeometry();
 
     }
 
@@ -80,7 +92,7 @@ public class SinglePassGeometryRenderer extends GeometryRenderer {
             rm.getRenderer().applyRenderState(additiveLight);
             ambientColor.setValue(VarType.Vector4, ColorRGBA.Black);
         }else{
-            ambientColor.setValue(VarType.Vector4, null /*TODO: getAmbientColor(lightList,true) */);
+            ambientColor.setValue(VarType.Vector4, this.geometry.getMaterial().getAmbientColor(lightList,true));
         }
 
         int lightDataIndex = 0;

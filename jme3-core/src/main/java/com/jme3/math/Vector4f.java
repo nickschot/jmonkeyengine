@@ -1003,6 +1003,10 @@ public final class Vector4f implements VectorNf, Savable, Cloneable, java.io.Ser
         throw new IllegalArgumentException("index must be either 0, 1, 2 or 3");
     }
 
+    public void setIndex(int index, float value) {
+        this.set(index, value);
+    }
+
     @Override
     public int size() {
         return 4;

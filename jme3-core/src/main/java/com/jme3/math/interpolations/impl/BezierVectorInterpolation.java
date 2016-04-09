@@ -34,7 +34,7 @@ public class BezierVectorInterpolation<V extends VectorNf>  implements NonPrimit
     @Override
     public void interpolate(float step, V resVector) {
         for (int i = 0; i < resVector.size(); i++) {
-            resVector.set(i, inters[i].interpolate(step));
+            resVector.setIndex(i, inters[i].interpolate(step));
         }
     }
 }

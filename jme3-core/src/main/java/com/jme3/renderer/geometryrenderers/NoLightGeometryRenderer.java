@@ -1,7 +1,12 @@
 package com.jme3.renderer.geometryrenderers;
 
+import com.jme3.material.MatParam;
+import com.jme3.material.Technique;
 import com.jme3.renderer.RenderManager;
+import com.jme3.renderer.Renderer;
 import com.jme3.scene.Geometry;
+import com.jme3.shader.Shader;
+import com.jme3.util.ListMap;
 
 /**
  * Created by Lennart on 08/04/2016.
@@ -12,7 +17,14 @@ public class NoLightGeometryRenderer extends GeometryRenderer {
     }
 
     @Override
-    public void render() {
+    public void renderForLighting() {
+        Technique technique = this.geometry.getMaterial().getActiveTechnique();
+        Shader shader = technique.getShader();
+        Renderer renderer = this.renderManager.getRenderer();
 
+        resetUniformsNotSetByCurrent(shader);
+        renderer.setShader(shader);
+
+        renderMeshFromGeometry();
     }
 }

@@ -3,6 +3,7 @@ package com.jme3.renderer.geometryrenderers;
 import com.jme3.light.*;
 import com.jme3.material.MatParam;
 import com.jme3.material.RenderState;
+import com.jme3.material.Technique;
 import com.jme3.material.TechniqueDef;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Quaternion;
@@ -27,49 +28,16 @@ public class MultiPassGeometryRenderer extends GeometryRenderer {
         this.lightList = ll;
     }
 
-    public void render() {
-/*
-
-        autoSelectTechnique(rm);
-        TechniqueDef techDef = technique.getDef();
-
-        if (techDef.isNoRender()) return;
-
-        Renderer r = rm.getRenderer();
-
-        if (rm.getForcedRenderState() != null) {
-            r.applyRenderState(rm.getForcedRenderState());
-        } else {
-            if (techDef.getRenderState() != null) {
-                r.applyRenderState(techDef.getRenderState().copyMergedTo(additionalState, mergedRenderState));
-            } else {
-                r.applyRenderState(RenderState.DEFAULT.copyMergedTo(additionalState, mergedRenderState));
-            }
-        }
-
-
-        // update camera and world matrices
-        // NOTE: setWorldTransform should have been called already
-
-        // reset unchanged uniform flag
-        clearUniformsSetByCurrent(technique.getShader());
-        rm.updateUniformBindings(technique.getWorldBindUniforms());
-
-
-        // setup textures and uniforms
-        for (int i = 0; i < paramValues.size(); i++) {
-            MatParam param = paramValues.getValue(i);
-            param.apply(r, technique);
-        }
-
+    public void renderForLighting() {
+        Technique technique = this.geometry.getMaterial().getActiveTechnique();
         Shader shader = technique.getShader();
-        r.setShader(shader);
 
-        renderMeshFromGeometry(r, geom); */
+        resetUniformsNotSetByCurrent(shader);
+        renderMultipassLighting(shader);
     }
 
-    protected void renderMultipassLighting(Shader shader, Geometry g, LightList lightList, RenderManager rm) {
-        Renderer r = rm.getRenderer();
+    protected void renderMultipassLighting(Shader shader) {
+        Renderer r = renderManager.getRenderer();
         Uniform lightDir = shader.getUniform("g_LightDirection");
         Uniform lightColor = shader.getUniform("g_LightColor");
         Uniform lightPos = shader.getUniform("g_LightPosition");
@@ -85,7 +53,7 @@ public class MultiPassGeometryRenderer extends GeometryRenderer {
 
             if (isFirstLight) {
                 // set ambient color for first light only
-                ambientColor.setValue(VarType.Vector4, null /* TODO getAmbientColor(lightList, false) */);
+                ambientColor.setValue(VarType.Vector4, ColorRGBA.Black /* TODO getAmbientColor(lightList, false) */);
                 isFirstLight = false;
                 isSecondLight = true;
             } else if (isSecondLight) {
@@ -148,7 +116,7 @@ public class MultiPassGeometryRenderer extends GeometryRenderer {
                     //one vec4 less and a vec4 that becomes a vec3
                     //the downside is that spotAngleCos decoding happens now in the frag shader.
                     tmpVec.set(dir2.getX(), dir2.getY(), dir2.getZ(), 0);
-                    rm.getCurrentCamera().getViewMatrix().mult(tmpVec, tmpVec);
+                    renderManager.getCurrentCamera().getViewMatrix().mult(tmpVec, tmpVec);
                     tmpLightDirection.set(tmpVec.getX(), tmpVec.getY(), tmpVec.getZ(), spotAngleCos);
 
                     lightDir.setValue(VarType.Vector4, tmpLightDirection);
