@@ -17,15 +17,17 @@ import com.jme3.shader.Uniform;
 import com.jme3.shader.VarType;
 import com.jme3.util.TempVars;
 
+import java.util.logging.Logger;
+
 /**
  * Created by Lennart on 08/04/2016.
  */
 public class MultiPassGeometryRenderer extends GeometryRenderer {
-    private final LightList lightList;
 
-    public MultiPassGeometryRenderer(Geometry g, LightList ll, RenderManager rm) {
+    private static final Logger logger = Logger.getLogger(MultiPassGeometryRenderer.class.getName());
+
+    public MultiPassGeometryRenderer(Geometry g,RenderManager rm) {
         super(g, rm);
-        this.lightList = ll;
     }
 
     public void renderForLighting() {
@@ -45,15 +47,24 @@ public class MultiPassGeometryRenderer extends GeometryRenderer {
         boolean isFirstLight = true;
         boolean isSecondLight = false;
 
-        for (int i = 0; i < lightList.size(); i++) {
-            Light l = lightList.get(i);
+        LightList ll = this.geometry.getWorldLightList();
+
+        logger.info("RENDERFORLIGHTING");
+
+        for (Light l : ll) {
+            logger.info(l.toString());
+        }
+
+
+        for (int i = 0; i < ll.size(); i++) {
+            Light l = ll.get(i);
             if (l instanceof AmbientLight) {
                 continue;
             }
 
             if (isFirstLight) {
                 // set ambient color for first light only
-                ambientColor.setValue(VarType.Vector4, ColorRGBA.Black /* TODO getAmbientColor(lightList, false) */);
+                ambientColor.setValue(VarType.Vector4, ColorRGBA.Pink /* TODO getAmbientColor(lightList, false) */);
                 isFirstLight = false;
                 isSecondLight = true;
             } else if (isSecondLight) {

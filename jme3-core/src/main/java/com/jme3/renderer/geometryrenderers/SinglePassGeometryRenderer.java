@@ -18,17 +18,18 @@ import com.jme3.util.ListMap;
 import com.jme3.util.TempVars;
 
 import java.util.Collection;
+import java.util.StringJoiner;
+import java.util.logging.Logger;
 
 /**
  * Created by Lennart on 08/04/2016.
  */
 public class SinglePassGeometryRenderer extends GeometryRenderer {
-    private final LightList lightList;
 
-    public SinglePassGeometryRenderer(Geometry g, LightList ll, RenderManager rm) {
+    private static final Logger logger = Logger.getLogger(SinglePassGeometryRenderer.class.getName());
+
+    public SinglePassGeometryRenderer(Geometry g, RenderManager rm) {
         super(g, rm);
-
-        this.lightList = ll;
     }
 
     @Override
@@ -40,14 +41,22 @@ public class SinglePassGeometryRenderer extends GeometryRenderer {
         Shader shader = this.geometry.getMaterial().getActiveTechnique().getShader();
         Renderer renderer = this.renderManager.getRenderer();
 
+        LightList ll = this.geometry.getWorldLightList();
+
+        logger.info("RENDERFORLIGHTING");
+
+        for (Light l : ll) {
+            logger.info(l.toString());
+        }
+
         resetUniformsNotSetByCurrent(shader);
-        if (this.lightList.size() == 0) {
-            updateLightListUniforms(shader, this.geometry, this.lightList, this.renderManager.getSinglePassLightBatchSize(), this.renderManager, 0);
+        if (ll.size() == 0) {
+            updateLightListUniforms(shader, this.geometry, ll, this.renderManager.getSinglePassLightBatchSize(), this.renderManager, 0);
             renderer.setShader(shader);
             renderMeshFromGeometry();
         } else {
-            while (nbRenderedLights < this.lightList.size()) {
-                nbRenderedLights = updateLightListUniforms(shader, this.geometry, this.lightList, this.renderManager.getSinglePassLightBatchSize(), this.renderManager, nbRenderedLights);
+            while (nbRenderedLights < ll.size()) {
+                nbRenderedLights = updateLightListUniforms(shader, this.geometry, ll, this.renderManager.getSinglePassLightBatchSize(), this.renderManager, nbRenderedLights);
                 renderer.setShader(shader);
                 renderMeshFromGeometry();
             }

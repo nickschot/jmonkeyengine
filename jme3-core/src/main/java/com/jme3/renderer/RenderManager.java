@@ -350,7 +350,12 @@ public class RenderManager {
      * @param mat The forced material to set, or null to return to normal
      */
     public void setForcedMaterial(Material mat) {
+        System.out.println("Forcing a material");
         forcedMaterial = mat;
+    }
+
+    public Material getForcedMaterial() {
+        return this.forcedMaterial;
     }
 
     /**
@@ -516,11 +521,9 @@ public class RenderManager {
      * @see Material#render(com.jme3.scene.Geometry, com.jme3.renderer.RenderManager) 
      */
     public void renderGeometry(Geometry g) {
-        if (g.isIgnoreTransform()) {
-            setWorldMatrix(Matrix4f.IDENTITY);
-        } else {
-            setWorldMatrix(g.getWorldMatrix());
-        }
+        g.render(this);
+
+        /*
         
         // Perform light filtering if we have a light filter.
         LightList lightList = g.getWorldLightList();
@@ -563,6 +566,7 @@ public class RenderManager {
         } else {
             g.getMaterial().render(g, lightList, this);
         }
+        */
     }
 
     /**
@@ -604,13 +608,16 @@ public class RenderManager {
                 preloadScene(children.get(i));
             }
         } else if (scene instanceof Geometry) {
+
+
             // add to the render queue
             Geometry gm = (Geometry) scene;
             if (gm.getMaterial() == null) {
                 throw new IllegalStateException("No material is set for Geometry: " + gm.getName());
             }
 
-            gm.getMaterial().preload(this);
+            logger.info("Ik ga de preload van de geometry aanroepen");
+            gm.preload(this);
             Mesh mesh = gm.getMesh();
             if (mesh != null) {
                 for (VertexBuffer vb : mesh.getBufferList().getArray()) {
