@@ -439,7 +439,7 @@ public class AnimationFactory {
                         case Rotation:
                             // TODO: not very flexible, one should consider allowing to set Interpolations
                             Quaternion rot = new Quaternion();
-                            new LinearQuaternionInterpolation(((Rotation) keyFrames[i]).rotation, ((Rotation) keyFrames[key]).rotation).interpolate(val, res);
+                            new LinearQuaternionInterpolation(((Rotation) keyFrames[i]).rotation, ((Rotation) keyFrames[key]).rotation).interpolate(val, rot);
                             rotations[j] = rot;
                             break;
                         case Scale:

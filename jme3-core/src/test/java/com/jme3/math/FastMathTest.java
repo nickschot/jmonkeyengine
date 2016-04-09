@@ -190,6 +190,7 @@ public class FastMathTest {
         assertEquals(FastMath.getBezierP1toP2Length(p0, p1, p2, p3), 11.833087f, 0.001f);
     }
 
+    @Test
     public void interpolateVectorBezier() {
         Vector3f[] expected = new Vector3f[]{
             new Vector3f(0.11816406f, 1.1982422f    , -3.368164f),
