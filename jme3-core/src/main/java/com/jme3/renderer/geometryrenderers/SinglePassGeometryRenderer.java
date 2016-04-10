@@ -39,12 +39,12 @@ public class SinglePassGeometryRenderer extends GeometryRenderer {
 
         resetUniformsNotSetByCurrent(shader);
         if (ll.size() == 0) {
-            updateLightListUniforms(shader, this.geometry, ll, this.renderManager.getSinglePassLightBatchSize(), this.renderManager, 0);
+            updateLightListUniforms(this.renderManager.getSinglePassLightBatchSize(), 0);
             renderer.setShader(shader);
             renderMeshFromGeometry();
         } else {
             while (nbRenderedLights < ll.size()) {
-                nbRenderedLights = updateLightListUniforms(shader, this.geometry, ll, this.renderManager.getSinglePassLightBatchSize(), this.renderManager, nbRenderedLights);
+                nbRenderedLights = updateLightListUniforms(this.renderManager.getSinglePassLightBatchSize(), nbRenderedLights);
                 renderer.setShader(shader);
                 renderMeshFromGeometry();
             }
@@ -70,7 +70,11 @@ public class SinglePassGeometryRenderer extends GeometryRenderer {
      * g_LightPosition.w is the inverse radius (1/r) of the light (for
      * attenuation) <br/> </p>
      */
-    protected int updateLightListUniforms(Shader shader, Geometry g, LightList lightList, int numLights, RenderManager rm, int startIndex) {
+    /* Test */ public int updateLightListUniforms(int numLights, int startIndex) {
+
+        Shader shader = this.geometry.getMaterial().getActiveTechnique().getShader();
+        LightList lightList = this.renderManager.getFilteredLightList();
+
         if (numLights == 0) { // this shader does not do lighting, ignore.
             return 0;
         }
@@ -86,10 +90,12 @@ public class SinglePassGeometryRenderer extends GeometryRenderer {
             additiveLight.setBlendMode(RenderState.BlendMode.AlphaAdditive);
             additiveLight.setDepthWrite(false);
 
-            rm.getRenderer().applyRenderState(additiveLight);
+            this.renderManager.getRenderer().applyRenderState(additiveLight);
             ambientColor.setValue(VarType.Vector4, ColorRGBA.Black);
         }else{
+            int oldAmountOfLights = lightList.size();
             ambientColor.setValue(VarType.Vector4, this.getAmbientColor(true));
+            System.out.println(oldAmountOfLights + " <old new> " + lightList.size());
         }
 
         int lightDataIndex = 0;
@@ -118,7 +124,7 @@ public class SinglePassGeometryRenderer extends GeometryRenderer {
                     Vector3f dir = dl.getDirection();
                     //Data directly sent in view space to avoid a matrix mult for each pixel
                     tmpVec.set(dir.getX(), dir.getY(), dir.getZ(), 0.0f);
-                    rm.getCurrentCamera().getViewMatrix().mult(tmpVec, tmpVec);
+                    this.renderManager.getCurrentCamera().getViewMatrix().mult(tmpVec, tmpVec);
 //                        tmpVec.divideLocal(tmpVec.w);
 //                        tmpVec.normalizeLocal();
                     lightData.setVector4InArray(tmpVec.getX(), tmpVec.getY(), tmpVec.getZ(), -1, lightDataIndex);
@@ -132,7 +138,7 @@ public class SinglePassGeometryRenderer extends GeometryRenderer {
                     Vector3f pos = pl.getPosition();
                     float invRadius = pl.getInvRadius();
                     tmpVec.set(pos.getX(), pos.getY(), pos.getZ(), 1.0f);
-                    rm.getCurrentCamera().getViewMatrix().mult(tmpVec, tmpVec);
+                    this.renderManager.getCurrentCamera().getViewMatrix().mult(tmpVec, tmpVec);
                     //tmpVec.divideLocal(tmpVec.w);
                     lightData.setVector4InArray(tmpVec.getX(), tmpVec.getY(), tmpVec.getZ(), invRadius, lightDataIndex);
                     lightDataIndex++;
@@ -147,7 +153,7 @@ public class SinglePassGeometryRenderer extends GeometryRenderer {
                     float invRange = sl.getInvSpotRange();
                     float spotAngleCos = sl.getPackedAngleCos();
                     tmpVec.set(pos2.getX(), pos2.getY(), pos2.getZ(),  1.0f);
-                    rm.getCurrentCamera().getViewMatrix().mult(tmpVec, tmpVec);
+                    this.renderManager.getCurrentCamera().getViewMatrix().mult(tmpVec, tmpVec);
                     // tmpVec.divideLocal(tmpVec.w);
                     lightData.setVector4InArray(tmpVec.getX(), tmpVec.getY(), tmpVec.getZ(), invRange, lightDataIndex);
                     lightDataIndex++;
@@ -156,7 +162,7 @@ public class SinglePassGeometryRenderer extends GeometryRenderer {
                     //one vec4 less and a vec4 that becomes a vec3
                     //the downside is that spotAngleCos decoding happens now in the frag shader.
                     tmpVec.set(dir2.getX(), dir2.getY(), dir2.getZ(),  0.0f);
-                    rm.getCurrentCamera().getViewMatrix().mult(tmpVec, tmpVec);
+                    this.renderManager.getCurrentCamera().getViewMatrix().mult(tmpVec, tmpVec);
                     tmpVec.normalizeLocal();
                     lightData.setVector4InArray(tmpVec.getX(), tmpVec.getY(), tmpVec.getZ(), spotAngleCos, lightDataIndex);
                     lightDataIndex++;

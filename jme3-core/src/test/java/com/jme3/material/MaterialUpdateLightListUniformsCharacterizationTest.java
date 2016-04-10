@@ -7,6 +7,8 @@ import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.Renderer;
+import com.jme3.renderer.geometryrenderers.MultiPassGeometryRenderer;
+import com.jme3.renderer.geometryrenderers.SinglePassGeometryRenderer;
 import com.jme3.renderer.opengl.*;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Spatial;
@@ -32,8 +34,11 @@ public class MaterialUpdateLightListUniformsCharacterizationTest {
         Shader shader = new Shader(); // this cannot be mocked as it is final
         Geometry geom = mock(Geometry.class, withSettings().verboseLogging());
 
-
         RenderManager rm = mock(RenderManager.class, withSettings().verboseLogging());
+
+
+        SinglePassGeometryRenderer geometryRenderer = new SinglePassGeometryRenderer(geom, rm);
+
         // We found that if you give a RenderManager with no Renderer, you'll get a NullPointer, so we have to mock that method
         Renderer r = mock(Renderer.class, withSettings().verboseLogging());
         when(rm.getRenderer()).thenReturn(r);
@@ -80,10 +85,10 @@ public class MaterialUpdateLightListUniformsCharacterizationTest {
 
         // This method changes its shader parameter
         System.out.println(shader.getUniformMap());
-        //mat.updateLightListUniforms(shader, geom, ll, ll.size(), rm, 0);
+
+
         System.out.println(shader.getUniformMap());
 
-
-
+        //geometryRenderer.updateLightListUniforms(6, 0);
     }
 }

@@ -648,7 +648,6 @@ public class Geometry extends Spatial {
         if (rm.getLightFilter() != null) {
             rm.getFilteredLightList().clear();
             rm.getLightFilter().filterLights(this, rm.getFilteredLightList());
-            System.out.println("Filtering the lightList");
         }
 
         //if forcedTechnique we try to force it for render,
