@@ -12,9 +12,6 @@ import java.util.List;
 
 import static org.junit.Assert.*;
 
-/**
- * Created by lennart on 10/04/16.
- */
 public class RendererRegressionTest {
     List<Box> blockedBoxes = Arrays.asList(new Box(0, 460, 200, 20));
 
@@ -61,6 +58,11 @@ public class RendererRegressionTest {
     @Test
     public void testUnshadedModel() throws IOException {
         assertTrue(isSameImage("imageData/TestUnshadedModel-pre.png", "imageData/TestUnshadedModel-post.png", blockedBoxes));
+    }
+
+    @Test
+    public void testManyLightsSingle() throws IOException {
+        assertTrue(isSameImage("imageData/TestManyLightsSingle-pre.png", "imageData/TestManyLightsSingle-post.png", blockedBoxes));
     }
 
     private boolean isSameImage(String preImgName, String postImgName, List<Box> blockedRegions) throws IOException {

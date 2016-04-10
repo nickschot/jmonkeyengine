@@ -9,9 +9,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsSame.theInstance;
 
-/**
- * Created by lennart on 04/04/16.
- */
 public class ShaderCharacterizationTest {
     private Shader shader;
 

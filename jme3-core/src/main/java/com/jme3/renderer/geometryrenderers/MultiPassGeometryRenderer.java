@@ -19,9 +19,6 @@ import com.jme3.util.TempVars;
 
 import java.util.logging.Logger;
 
-/**
- * Created by Lennart on 08/04/2016.
- */
 public class MultiPassGeometryRenderer extends GeometryRenderer {
 
     private static final Logger logger = Logger.getLogger(MultiPassGeometryRenderer.class.getName());
@@ -139,10 +136,9 @@ public class MultiPassGeometryRenderer extends GeometryRenderer {
             // Either there are no lights at all, or only ambient lights.
             // Render a dummy "normal light" so we can see the ambient color.
 
-            System.out.println(this.getAmbientColor(false));
             ambientColor.setValue(VarType.Vector4, this.getAmbientColor(false));
             lightColor.setValue(VarType.Vector4, ColorRGBA.BlackNoAlpha);
-            lightPos.setValue(VarType.Vector4, new Quaternion(0, -1, 0, -1) /* TODO: nullDirLight */);
+            lightPos.setValue(VarType.Vector4, new Quaternion(0, -1, 0, -1));
             r.setShader(shader);
             renderMeshFromGeometry();
         }

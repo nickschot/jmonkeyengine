@@ -2,9 +2,6 @@ package com.jme3.math.interpolations.impl;
 
 import com.jme3.math.interpolations.api.Interpolation;
 
-/**
- * Created by lennart on 07/04/16.
- */
 public class CatmullRomFloatInterpolation implements Interpolation<Float> {
     private final float lowerBound;
     private final float upperBound;

@@ -5,9 +5,6 @@ import com.jme3.math.Vector3f;
 import com.jme3.math.VectorNf;
 import com.jme3.math.interpolations.api.NonPrimitiveInterpolation;
 
-/**
- * Created by lennart on 07/04/16.
- */
 public class BezierVectorInterpolation<V extends VectorNf>  implements NonPrimitiveInterpolation<V> {
     private final BezierFloatInterpolation[] inters;
 

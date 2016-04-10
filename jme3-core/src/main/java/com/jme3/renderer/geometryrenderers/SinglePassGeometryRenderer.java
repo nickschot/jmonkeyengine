@@ -15,9 +15,6 @@ import com.jme3.util.TempVars;
 
 import java.util.logging.Logger;
 
-/**
- * Created by Lennart on 08/04/2016.
- */
 public class SinglePassGeometryRenderer extends GeometryRenderer {
 
     private static final Logger logger = Logger.getLogger(SinglePassGeometryRenderer.class.getName());
@@ -31,7 +28,6 @@ public class SinglePassGeometryRenderer extends GeometryRenderer {
 
         int nbRenderedLights = 0;
 
-        // TODO
         Shader shader = this.geometry.getMaterial().getActiveTechnique().getShader();
         Renderer renderer = this.renderManager.getRenderer();
 
@@ -95,7 +91,6 @@ public class SinglePassGeometryRenderer extends GeometryRenderer {
         }else{
             int oldAmountOfLights = lightList.size();
             ambientColor.setValue(VarType.Vector4, this.getAmbientColor(true));
-            System.out.println(oldAmountOfLights + " <old new> " + lightList.size());
         }
 
         int lightDataIndex = 0;

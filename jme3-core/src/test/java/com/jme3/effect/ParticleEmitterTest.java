@@ -7,9 +7,6 @@ import org.junit.Test;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;
 
-/**
- * Created by Lennart on 07/04/2016.
- */
 public class ParticleEmitterTest {
     private ParticleEmitter pe;
     private Particle p;

@@ -8,9 +8,6 @@ import com.jme3.scene.Geometry;
 import com.jme3.shader.Shader;
 import com.jme3.util.ListMap;
 
-/**
- * Created by Lennart on 08/04/2016.
- */
 public class NoLightGeometryRenderer extends GeometryRenderer {
     public NoLightGeometryRenderer(Geometry g, RenderManager rm) {
         super(g, rm);

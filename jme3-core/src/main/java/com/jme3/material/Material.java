@@ -83,8 +83,6 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
     private static final Logger logger = Logger.getLogger(Material.class.getName());
     private static final RenderState additiveLight = new RenderState();
     private static final RenderState depthOnly = new RenderState();
-    private static final Quaternion nullDirLight = new Quaternion(0, -1, 0, -1);
-    private static final boolean SUPERSHORTCUT = true;
 
     static {
         depthOnly.setDepthTest(true);

@@ -586,7 +586,6 @@ public class RenderManager {
                 throw new IllegalStateException("No material is set for Geometry: " + gm.getName());
             }
 
-            logger.info("Ik ga de preload van de geometry aanroepen");
             gm.preload(this);
             Mesh mesh = gm.getMesh();
             if (mesh != null) {
