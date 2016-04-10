@@ -37,17 +37,14 @@ public abstract class GeometryRenderer {
         this.renderManager = rm;
     }
 
-    // TODO: Deze comment is vast stuk
     /**
-     * Called by {@link RenderManager} to render the geometry by
-     * using this material.
+     * Called by {@link RenderManager} to render the geometry
      * <p>
      * The material is rendered as follows:
      * <ul>
      * <li>Determine which technique to use to render the material -
      * either what the user selected via
-     * {@link #selectTechnique(java.lang.String, com.jme3.renderer.RenderManager)
-     * Material.selectTechnique()},
+     * {@link Geometry#selectTechnique(String, RenderManager)}
      * or the first default technique that the renderer supports
      * (based on the technique's {@link TechniqueDef#getRequiredCaps() requested rendering capabilities})<ul>
      * <li>If the technique has been changed since the last frame, then it is notified via
@@ -62,7 +59,7 @@ public abstract class GeometryRenderer {
      * applied in this order (later RenderStates override earlier RenderStates):<ol>
      * <li>{@link TechniqueDef#getRenderState() Technique Definition's RenderState}
      * - i.e. specific renderstate that is required for the shader.</li>
-     * <li>{@link #getAdditionalRenderState() Material Instance Additional RenderState}
+     * <li>{@link Material#getAdditionalRenderState() Material Instance Additional RenderState}
      * - i.e. ad-hoc renderstate set per model</li>
      * <li>{@link RenderManager#getForcedRenderState() RenderManager's Forced RenderState}
      * - i.e. renderstate requested by a {@link com.jme3.post.SceneProcessor} or
@@ -91,10 +88,6 @@ public abstract class GeometryRenderer {
      * <li>The mesh is uploaded and rendered.</li>
      * </ul>
      * </ul>
-     *
-     * @param geom The geometry to render
-     * @param lights Presorted and filtered light list to use for rendering
-     * @param rm The render manager requesting the rendering
      */
     public void render() {
         Technique technique = this.geometry.getMaterial().getActiveTechnique();
@@ -128,8 +121,21 @@ public abstract class GeometryRenderer {
         this.renderForLighting();
     }
 
-
+    /**
+     * Method that renders this geometry specifically for the lighting chosen
+     *
+     * So, if a {@link Technique} demands MultiPassLighting, the {@link Geometry} will select a
+     * {@link MultiPassGeometryRenderer} to render itself, all specific code for multi pass rendering is then in
+     * this function, which gets called from {@link GeometryRenderer#render()}
+     */
     public abstract void renderForLighting();
+
+    /**
+     * Convenienece function that renders a mesh using the currently set shader
+     *
+     * If ths geomery is instanced, it will render multiple instances of this mesh on the different locations set
+     * by the instancing
+     */
 
     protected void renderMeshFromGeometry() {
         Mesh mesh = this.geometry.getMesh();
@@ -178,5 +184,24 @@ public abstract class GeometryRenderer {
             u.clearSetByCurrentMaterial();
         }
     }
+
+    protected ColorRGBA getAmbientColor(boolean removeLights) {
+        ColorRGBA ambientLightColor = new ColorRGBA(0f, 0f, 0f, 1f);
+        LightList lightList = renderManager.getFilteredLightList();
+
+        for (int j = 0; j < lightList.size(); j++) {
+            Light l = lightList.get(j);
+            if (l instanceof AmbientLight) {
+                ambientLightColor.addLocal(l.getColor());
+                if(removeLights){
+                    lightList.remove(l);
+                }
+            }
+        }
+        ambientLightColor.a = 1.0f;
+
+        return ambientLightColor;
+    }
+
 
 }

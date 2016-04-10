@@ -1,10 +1,7 @@
 package com.jme3.renderer.geometryrenderers;
 
 import com.jme3.light.*;
-import com.jme3.material.MatParam;
 import com.jme3.material.RenderState;
-import com.jme3.material.Technique;
-import com.jme3.material.TechniqueDef;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 import com.jme3.math.Vector4f;
@@ -14,11 +11,8 @@ import com.jme3.scene.Geometry;
 import com.jme3.shader.Shader;
 import com.jme3.shader.Uniform;
 import com.jme3.shader.VarType;
-import com.jme3.util.ListMap;
 import com.jme3.util.TempVars;
 
-import java.util.Collection;
-import java.util.StringJoiner;
 import java.util.logging.Logger;
 
 /**
@@ -95,7 +89,7 @@ public class SinglePassGeometryRenderer extends GeometryRenderer {
             rm.getRenderer().applyRenderState(additiveLight);
             ambientColor.setValue(VarType.Vector4, ColorRGBA.Black);
         }else{
-            ambientColor.setValue(VarType.Vector4, this.geometry.getMaterial().getAmbientColor(lightList,true));
+            ambientColor.setValue(VarType.Vector4, this.getAmbientColor(true));
         }
 
         int lightDataIndex = 0;

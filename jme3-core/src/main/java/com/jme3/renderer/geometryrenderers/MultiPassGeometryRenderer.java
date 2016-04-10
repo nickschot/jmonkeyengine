@@ -58,7 +58,7 @@ public class MultiPassGeometryRenderer extends GeometryRenderer {
 
             if (isFirstLight) {
                 // set ambient color for first light only
-                ambientColor.setValue(VarType.Vector4, ColorRGBA.Pink /* TODO getAmbientColor(lightList, false) */);
+                ambientColor.setValue(VarType.Vector4, this.getAmbientColor(false));
                 isFirstLight = false;
                 isSecondLight = true;
             } else if (isSecondLight) {
@@ -138,9 +138,11 @@ public class MultiPassGeometryRenderer extends GeometryRenderer {
         if (isFirstLight) {
             // Either there are no lights at all, or only ambient lights.
             // Render a dummy "normal light" so we can see the ambient color.
-            ambientColor.setValue(VarType.Vector4, null /* TODO: getAmbientColor(lightList, false) */);
+
+            System.out.println(this.getAmbientColor(false));
+            ambientColor.setValue(VarType.Vector4, this.getAmbientColor(false));
             lightColor.setValue(VarType.Vector4, ColorRGBA.BlackNoAlpha);
-            lightPos.setValue(VarType.Vector4, null /* TODO: nullDirLight */);
+            lightPos.setValue(VarType.Vector4, new Quaternion(0, -1, 0, -1) /* TODO: nullDirLight */);
             r.setShader(shader);
             renderMeshFromGeometry();
         }

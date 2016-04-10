@@ -648,20 +648,8 @@ public class Geometry extends Spatial {
         if (rm.getLightFilter() != null) {
             rm.getFilteredLightList().clear();
             rm.getLightFilter().filterLights(this, rm.getFilteredLightList());
+            System.out.println("Filtering the lightList");
         }
-
-        /*
-        this.setOverrides(rm);
-
-        this.autoSelectRenderer(rm);
-
-        if (this.renderer != null) {
-            this.renderer.render();
-        } else {
-            System.out.println("Ik heb helemaal geen renderer");
-        }
-
-        this.restoreOverrides(rm); */
 
         //if forcedTechnique we try to force it for render,
         //if it does not exists in the mat def, we check for forcedMaterial and render the geom if not null
@@ -712,10 +700,6 @@ public class Geometry extends Spatial {
             this.autoSelectRenderer(rm);
             this.getRendererForTechnique(rm).render();
         }
-
-
-
-
     }
 
     public void autoSelectRenderer(RenderManager rm) {
@@ -836,58 +820,4 @@ public class Geometry extends Spatial {
         // TODO: sortingId = -1;
     }
 
-    private void clearOverrides () {
-        this.restorableMaterial = null;
-        this.restorableRenderState = null;
-        this.restorableTechniqueName = null;
-    }
-
-
-    private void setOverrides(RenderManager renderManager) {
-        clearOverrides();
-
-        String forcedTechniqueName = renderManager.getForcedTechnique();
-        Material forcedMaterial = renderManager.getForcedMaterial();
-
-        RenderState forcedRenderState = renderManager.getForcedRenderState();
-
-        if (forcedTechniqueName!= null && this.getMaterial().getMaterialDef().getTechniqueDef(forcedTechniqueName) != null) {
-            System.out.println("Forcing a technique override");
-
-            this.restorableTechniqueName = this.getMaterial().getActiveTechnique() != null ? this.getMaterial().getActiveTechnique().getDef().getName() : "Default";
-            this.selectTechnique(forcedTechniqueName, renderManager);
-
-            this.restorableRenderState = forcedRenderState;
-
-            if (this.getMaterial().getActiveTechnique().getDef().getForcedRenderState() != null) {
-                renderManager.setForcedRenderState(this.getMaterial().getActiveTechnique().getDef().getForcedRenderState());
-            }
-        } else if (forcedMaterial != null) {
-            System.out.println("Forcing a material override");
-
-            this.restorableMaterial = this.getMaterial();
-            this.setMaterial(forcedMaterial);
-        }
-    }
-
-    private void restoreOverrides(RenderManager renderManager) {
-
-        if (restorableMaterial != null) {
-            System.out.println("Restoring material");
-            this.setMaterial(restorableMaterial);
-        }
-
-        if (restorableRenderState != null) {
-
-            System.out.println("Restoring renderstate");
-            renderManager.setForcedRenderState(restorableRenderState);
-        }
-
-        if (this.restorableTechniqueName != null) {
-
-            System.out.println("Restoring techniques");
-            this.selectTechnique(this.restorableTechniqueName, renderManager);
-        }
-
-    }
 }

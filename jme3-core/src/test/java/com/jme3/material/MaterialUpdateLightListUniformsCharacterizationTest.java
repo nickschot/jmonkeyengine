@@ -80,7 +80,7 @@ public class MaterialUpdateLightListUniformsCharacterizationTest {
 
         // This method changes its shader parameter
         System.out.println(shader.getUniformMap());
-        mat.updateLightListUniforms(shader, geom, ll, ll.size(), rm, 0);
+        //mat.updateLightListUniforms(shader, geom, ll, ll.size(), rm, 0);
         System.out.println(shader.getUniformMap());
 
 

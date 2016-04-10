@@ -11,6 +11,13 @@ public class LinearVectorInterpolation<V extends VectorNf> implements NonPrimiti
     private final V lowerBound;
     private final V upperBound;
 
+    /**
+     * Creates a Interpolation instance that applies linear interpolation between
+     * start and end
+     *
+     * @param start The minimum value of this interpolation
+     * @param end The maximum  value of this interpolation
+     */
     public LinearVectorInterpolation(V start, V end) {
 
         this.lowerBound = start;
@@ -23,6 +30,11 @@ public class LinearVectorInterpolation<V extends VectorNf> implements NonPrimiti
         }
     }
 
+    /**
+     * Returns an interpolated value on range of this interpolation.
+     * Returns start if step <= 0.0 and end if step >= 1.0
+     * The result is always within range of start, end
+     */
     @Override
     public void interpolate(float value, V resVector) {
         for (int i = 0; i < resVector.size(); i++) {
